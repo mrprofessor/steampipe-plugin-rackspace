@@ -1,0 +1,25 @@
+* Steampipe-plugin-rackspace
+:PROPERTIES:
+:CUSTOM_ID: steampipe-plugin-rackspace
+:END:
+
+This plugin is very similar to steampipe-plugin-openstack, However
+Rackspace uses a customized version of openstack and this plugin is
+supposed to work with the Rackspace public cloud without any hassle.
+
+
+***** Getting Rackspace credentials credentials
+
+#+begin_example sh
+  curl --location --request POST 'https://identity.api.rackspacecloud.com/v2.0/tokens' \
+  --header 'Content-Type: application/json' \
+  --data-raw '{
+      "auth": {
+          "RAX-KSKEY:apiKeyCredentials": {
+          "username": "<username>",
+          "apiKey": "<api_key>"
+          }
+      }
+   }'
+#+end_example
+
