@@ -54,7 +54,6 @@ func tableRackspaceImage() *plugin.Table {
 
 // listImages fetches all available images
 func listImages(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-
 	logger := plugin.Logger(ctx)
 
 	provider, err := connect(ctx, d)

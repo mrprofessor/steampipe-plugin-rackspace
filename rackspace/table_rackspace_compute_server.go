@@ -3,7 +3,6 @@ package rackspace
 import (
 	"context"
 	"fmt"
-	"reflect"
 
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
@@ -15,16 +14,16 @@ import (
 	"github.com/gophercloud/gophercloud/v2/pagination"
 )
 
-func tableRackspaceCompute() *plugin.Table {
+func tableRackspaceComputeServer() *plugin.Table {
 	return &plugin.Table{
-		Name:        "rackspace_compute",
-		Description: "Rackspace Compute (Nova)",
+		Name:        "rackspace_compute_server",
+		Description: "Rackspace Compute Server (Nova)",
 		List: &plugin.ListConfig{
-			Hydrate: listCompute,
+			Hydrate: listComputeServers,
 		},
 		Get: &plugin.GetConfig{
 			KeyColumns: plugin.SingleColumn("id"),
-			Hydrate:    getCompute,
+			Hydrate:    getComputeServer,
 		},
 		Columns: []*plugin.Column{
 
@@ -82,9 +81,7 @@ func tableRackspaceCompute() *plugin.Table {
 	}
 }
 
-func listCompute(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-
-	logger := plugin.Logger(ctx)
+func listComputeServers(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
 
 	provider, err := connect(ctx, d)
 	if err != nil {
@@ -118,21 +115,6 @@ func listCompute(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData
 		}
 
 		for _, s := range serverList {
-			logger.Info("server id", s.ID)
-			logger.Info("\n\n@@@ server server", s)
-
-			// Use reflection to print all fields and their values
-			val := reflect.ValueOf(s)
-			typ := reflect.TypeOf(s)
-
-			for i := 0; i < val.NumField(); i++ {
-				field := typ.Field(i).Name
-				value := val.Field(i).Interface()
-				logger.Info(fmt.Sprintf("%s: %v", field, value))
-			}
-
-			logger.Info("\n\n\n@@@ server server", s)
-
 			d.StreamListItem(ctx, s)
 		}
 		return true, nil
@@ -141,16 +123,11 @@ func listCompute(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData
 	return nil, nil
 }
 
-func getCompute(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	logger := plugin.Logger(ctx)
-	quals := d.EqualsQuals
-	id := quals["id"].GetStringValue()
+func getComputeServer(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
+	id := d.EqualsQuals["id"].GetStringValue()
 	provider, err := connect(ctx, d)
 
-	logger.Warn("AuthenticatedClient print something")
-
 	if err != nil {
-		logger.Error("AuthenticatedClient error")
 		fmt.Println(err)
 		return nil, err
 	}
@@ -161,23 +138,18 @@ func getCompute(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData)
 		return nil, err
 	}
 
-	logger.Info("Region @@@", region)
-
 	client, err :=
 		openstack.NewComputeV2(provider, gophercloud.EndpointOpts{
 			Region: *region,
 		})
-	fmt.Println(client)
 	if err != nil {
-		fmt.Println("NewComputeV2 Error:")
-		fmt.Println(err)
 		return nil, err
 	}
 
 	server, err := servers.Get(ctx, client, id).Extract()
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 	return server, nil
 }
+
