@@ -12,7 +12,6 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
 )
 
-
 // TimeWrapper is a struct to handle time.Time in JSON
 type TimeWrapper struct {
 	Time time.Time `json:"time"`

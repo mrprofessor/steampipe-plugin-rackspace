@@ -33,8 +33,6 @@ func tableRackspaceComputeKeyPair() *plugin.Table {
 			{Name: "updated_at", Type: proto.ColumnType_TIMESTAMP, Description: "The date and time when the keypair was last updated."},
 			{Name: "deleted_at", Type: proto.ColumnType_TIMESTAMP, Description: "The date and time when the keypair was deleted."},
 			{Name: "deleted", Type: proto.ColumnType_BOOL, Description: "Whether the keypair is deleted."},
-			
-
 		},
 	}
 }
@@ -102,9 +100,7 @@ func getComputeKeypair(ctx context.Context, d *plugin.QueryData, h *plugin.Hydra
 	}
 
 	getOpts := keypairs.GetOpts{}
-	logger := plugin.Logger(ctx)
 	keypair, err := keypairs.Get(ctx, client, name, getOpts).Extract()
-	logger.Info("getComputeKeypair @@@", keypair)
 
 	if err != nil {
 		return nil, err

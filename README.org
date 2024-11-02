@@ -3,24 +3,49 @@
 :CUSTOM_ID: steampipe-plugin-rackspace
 :END:
 
-This plugin is similar to the `steampipe-plugin-openstack`, but it is specifically designed to work seamlessly with the Rackspace public cloud. Rackspace utilizes older versions of some OpenStack services, and this plugin ensures compatibility without hassle.
+This plugin is similar to the =steampipe-plugin-openstack=, but it is
+specifically designed to work seamlessly with the Rackspace public
+cloud. Rackspace utilizes older versions of some OpenStack services,
+and this plugin ensures compatibility without hassle.
 
-***** Retrieving Rackspace Credentials
+** Retrieving Rackspace Credentials
+:PROPERTIES:
+:CUSTOM_ID: retrieving-rackspace-credentials
+:END:
 
-To obtain Rackspace credentials, use the following API call:
+To authenticate with Rackspace, use the following API call:
 
 #+begin_example sh
-  curl --location --request POST 'https://identity.api.rackspacecloud.com/v2.0/tokens' \
-  --header 'Content-Type: application/json' \
-  --data-raw '{
-      "auth": {
-          "RAX-KSKEY:apiKeyCredentials": {
-          "username": "<username>",
-          "apiKey": "<api_key>"
-          }
-      }
-   }'
+curl --location --request POST 'https://identity.api.rackspacecloud.com/v2.0/tokens' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "auth": {
+        "RAX-KSKEY:apiKeyCredentials": {
+            "username": "<username>",
+            "apiKey": "<api_key>"
+        }
+    }
+}'
 #+end_example
+
+** Usage
+:PROPERTIES:
+:CUSTOM_ID: usage
+:END:
+Clone the plugin repository and install it to your Steampipe Plugin
+Library
+
+#+begin_src sh
+  git clone https://github.com/mrprofessor/steampipe-plugin-rackspace.git
+  make install
+#+end_src
+
+Next, configure the plugin:
+
+#+begin_src sh
+  cp config/rackspace.spc ~/.steampipe/config/
+  ~/.steampipe/config/rackspace.spc
+#+end_src
 
 ** Known Limitations
 :PROPERTIES:
@@ -32,32 +57,49 @@ To obtain Rackspace credentials, use the following API call:
 :CUSTOM_ID: gophercloud-compatibility
 :END:
 
-The [[https://github.com/gophercloud/gophercloud][Gophercloud]] library does not support older versions of certain services. As a result, this plugin relies on specific service URLs for some tables, including:
+The [[https://github.com/gophercloud/gophercloud][Gophercloud]] library does not support older versions of certain
+services used by Rackspace. Consequently, this plugin relies on
+Rackspace-specific service URLs for certain tables, including:
 
 - =table_rackspace_volume=
 - =table_rackspace_snapshot=
 - =table_rackspace_loadbalancer=
+- =table_rackspace_dns_domain=
 - =table_rackspace_network=
-- =table_rackspace_dns_domains=
+- =table_rackspace_network_port=
+- =table_rackspace_network_subnet=
+- =table_rackspace_network_security_group=
 
-Certain services, such as `table_rackspace_cloud_files_cdn` (Rackspace CDN), are also not implemented because [[https://github.com/gophercloud/gophercloud][Gophercloud]] lacks support for them. Additionally, [[https://github.com/rackspace/gophercloud][Rackspace's Gophercloud]] fork, which includes these services, is no longer actively maintained.
+These tables currently lack pagination; I can add it later if
+needed. Rackspace has a [[https://github.com/rackspace/gophercloud][Go SDK]] that supports pagination for these
+services, but it is no longer actively maintained, which limits
+ongoing support for them.
 
-Some services are unsupported due to the lack of maintenance on [[https://github.com/rackspace/gophercloud][Rackspace's Gophercloud]] fork. Unsupported services include:
-
-- =table_rackspace_cloud_files_cdn= (Rackspace CDN)
+Additionally, services such as =table_rackspace_cloud_files_cdn=
+(Rackspace CDN) are unsupported because Gophercloud lacks
+compatibility for them.
 
 ** TODOs
 :PROPERTIES:
 :CUSTOM_ID: todos
 :END:
 
-***** New Tables
-- rackspace_compute_server_instanceactions [[https://github.com/gophercloud/gophercloud/blob/c697dbb84b05feb3ccc8aa0e422306c205baf1de/openstack/compute/v2/instanceactions/results.go#L12][servers/:id/os-instance-actions]]
-- Autoscaler
-- Orchestration [[https://github.com/gophercloud/gophercloud/tree/c697dbb84b05feb3ccc8aa0e422306c205baf1de/openstack/orchestration/v1/stacks][link]]
-- Databases
-- Networks (security group, port, subnets) [[https://docs-ospc.rackspace.com/cloud-networks/quickstart/][link]]
-  
-***** Improvements
+*** New Tables
+:PROPERTIES:
+:CUSTOM_ID: new-tables
+:END:
+The following tables are planned for future releases:
 
-- =table_rackspace_compute_limit= does not display =Rate= due to limitations with Gophercloud. This can be circumvented by using APIs directly.
+- =rackspace_compute_server_instanceactions= [[https://github.com/gophercloud/gophercloud/blob/c697dbb84b05feb3ccc8aa0e422306c205baf1de/openstack/compute/v2/instanceactions/results.go#L12][Instance Actions]]
+- Autoscaler
+- Databases
+- Orchestration (stacks, templates, etc.) [[https://github.com/gophercloud/gophercloud/tree/c697dbb84b05feb3ccc8aa0e422306c205baf1de/openstack/orchestration/v1/stacks][Orchestration Documentation]]
+
+*** Improvements
+:PROPERTIES:
+:CUSTOM_ID: improvements
+:END:
+- Add pagination support for tables using Rackspace-specific URLs.
+- Enhance =table_rackspace_compute_limit= to display =Rate= by
+  bypassing Gophercloud limitations through direct API calls,
+  improving data accuracy.

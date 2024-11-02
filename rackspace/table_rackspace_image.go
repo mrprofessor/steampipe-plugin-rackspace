@@ -2,8 +2,6 @@ package rackspace
 
 import (
 	"context"
-	"fmt"
-	"reflect"
 
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
@@ -54,7 +52,6 @@ func tableRackspaceImage() *plugin.Table {
 
 // listImages fetches all available images
 func listImages(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData) (interface{}, error) {
-	logger := plugin.Logger(ctx)
 
 	provider, err := connect(ctx, d)
 	if err != nil {
@@ -87,19 +84,6 @@ func listImages(ctx context.Context, d *plugin.QueryData, h *plugin.HydrateData)
 		}
 
 		for _, img := range imageList {
-			logger.Info("image id", img.ID)
-			logger.Info("\n\n@@@ image", img)
-
-			// Use reflection to print all fields and their values
-			val := reflect.ValueOf(img)
-			typ := reflect.TypeOf(img)
-
-			for i := 0; i < val.NumField(); i++ {
-				field := typ.Field(i).Name
-				value := val.Field(i).Interface()
-				logger.Info(fmt.Sprintf("%s: %v", field, value))
-			}
-
 			d.StreamListItem(ctx, img)
 		}
 		return true, nil

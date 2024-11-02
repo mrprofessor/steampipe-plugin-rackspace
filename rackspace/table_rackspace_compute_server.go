@@ -152,4 +152,3 @@ func getComputeServer(ctx context.Context, d *plugin.QueryData, h *plugin.Hydrat
 	}
 	return server, nil
 }
-

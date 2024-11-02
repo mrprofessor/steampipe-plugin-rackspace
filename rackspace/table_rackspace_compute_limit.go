@@ -12,7 +12,6 @@ import (
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin/transform"
 )
 
-
 func tableRackspaceComputeLimit() *plugin.Table {
 	return &plugin.Table{
 		Name:        "rackspace_compute_limit",
@@ -44,8 +43,7 @@ func tableRackspaceComputeLimit() *plugin.Table {
 	}
 }
 
-
-//TODO: Use APIs to get the Rate data which are missing from gohercloud
+// TODO: Use APIs to get the Rate data which are missing from gohercloud
 func getComputeLimit(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Authenticate with Rackspace
 	provider, err := connect(ctx, d)
